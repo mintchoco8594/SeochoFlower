@@ -1,1 +1,1 @@
-SeochoAIcollege
+SeochoAIcollege 우엥

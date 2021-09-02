@@ -1,1 +1,0 @@
-SeochoAIcollege 우엥

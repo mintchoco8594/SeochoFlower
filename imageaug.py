@@ -18,7 +18,7 @@ aug = ImageDataGenerator(rotation_range =30,  # 좌우로 30도(degree)범위 �
                          height_shift_range=0.1,
                          zoom_range=0.2,
                          shear_range=0.2,
-                         brightness_range=(0.2,1.0), #밝기조절 정도
+#                          brightness_range=(0.2,1.0), #밝기조절 정도, imagedarkener 사용을 위해 비활성화해줍니다.
                          horizontal_flip= True,  
                          vertical_flip = True,   
                          fill_mode='nearest') # 마지막 옵션 주의하자.

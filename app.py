@@ -78,7 +78,7 @@ def analyse_image():
     if answer == 2:
         ans = "용담_용담"
     if answer == 3:
-        ans = "카네이션_빨간카네이션"
+        ans = "카네이션_레드(스프레이)"
     if answer == 4:
         ans = "해바라기_해바라기"
 

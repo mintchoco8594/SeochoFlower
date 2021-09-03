@@ -1,19 +1,16 @@
+import json
+
 import cv2
+import pymysql
 from flask import Flask, render_template, request, jsonify
 from keras.models import load_model
 import numpy as np
-from sqlalchemy import func
 from werkzeug.utils import secure_filename
-from db_connect import db
-from models import Target, Flower
 
-app =Flask(__name__)
+db = pymysql.connect(host='localhost', port=3306, user='root', passwd='1234', db='ai_college', charset="utf8")
+cur = db.cursor()  # 커서 클래스 호출
 
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:duddnr1229@localhost:3306/ai_college"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JSON_AS_ASCII'] = False
-
-db.init_app(app)
+app = Flask(__name__)
 
 
 @app.route("/")
@@ -83,30 +80,29 @@ def analyse_image():
 
     # 문자열 스플릿
     fl_item, fl_type = str(ans).split('_')
-    print(fl_item, fl_type)
-    flist = Target(fl_item, fl_type)
-    db.session.add(flist)
-    db.session.commit()
-    print(flist.fl_type, flist.fl_item)
 
-    flower_dict = []
+    cur.execute(
+        # "SELECT * FROM realtime_flower where poomname = '%s' and goodname = '%s' order by qty" % (
+        # fl_item, fl_type))  # 모델 결과값에 따라 쿼리문 작성하는 부분
+        "SELECT poomname, goodname, lvname, qty, round(max(cost))"
+        " FROM realtime_flower where poomname = '%s' and goodname = '%s' group by lvname;" % (
+        fl_item, fl_type))  # 모델 결과값에 따라 쿼리문 작성하는 부분
+    rows = cur.fetchall()  # 데이터저장
+    print(rows)
 
-    fcost = db.session.query(Flower.poomname, Flower.goodname, Flower.lvname, func.sum(Flower.qty).label('qty'), func.avg(Flower.cost).label('cost')).\
-        filter(Flower.poomname == flist.fl_item, Flower.goodname == flist.fl_type).\
-        group_by(Flower.lvname).all()
-        #having(func.sum(Flower.qty), func.avg(Flower.cost)).all()
+    # 딕셔너리에 담아서 json 형태로 변환하여 전송
+    flowers_dict = []
+    for row in rows:
+        flowers_dict.append({
+            "poomname": row[0],
+            "goodname": row[1],
+            "lvname": row[2],
+            "qty": row[3],
+            "cost": row[4]
 
-    assert isinstance(fcost, object)
-    for f in fcost:
-        flower_dict.append({
-            "poomname": f.poomname,
-            "goodname": f.goodname,
-            "lvname": f.lvname,
-            "cost": int(f.cost),
-            "qty": int(f.qty)
         })
-    print(flower_dict)
-    return jsonify(flower_dict)
+
+    return jsonify(flowers_dict)
 
 
 if __name__ == '__main__':

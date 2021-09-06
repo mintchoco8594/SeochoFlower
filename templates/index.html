@@ -13,9 +13,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <style>
-        .file_input_textbox {
-            height:29px;
-        }
         .file_input_div {
             position:relative;
             width:80px;
@@ -84,14 +81,11 @@
         <img style="width: 320px; height: 240px;" id="thum-img" src="{{url_for('static', filename='img/default.png')}}">
     </div>
 
-    <!-- 파일명  넣을 input -->
-    <!-- <input type="text" id="fileName"  name="fileName" class="file_input_textbox"> -->
-
     <!-- 이미지 선택 버튼 -->
     <form id="ImageSelect" name="img_select" enctype="multipart/form-data">
         <div class="file_input_div">
             <img src="{{url_for('static', filename='img/open.png')}}" class="file_input_img_btn" alt="open">
-            <input type="file" id="input-image" name="input-image" class="file_input_hidden" onchange="imageInput()">
+            <input type="file" id="input-image" name="input-image" class="file_input_hidden">
             <!-- <input type="file" id="input-image" name="input-image" class="file_input_hidden" onchange="javascript:document.getElementById('fileName').value = this.value"> -->
         </div>
     </form>
@@ -171,41 +165,24 @@
                 }
             }
         });
-        
+
         var data = data || {};
 
-                    
-        // 선택한 이미지 전송
-        function imageInput() {
+        // 선택한 이미지 전송 및 분석
+        function imageAnalyse() {
             var formDataRaw = $('#ImageSelect')[0];
             var form_data = new FormData(formDataRaw);
+            let flowerPoom
+            let flowerGood
             $.ajax({
                 type: 'POST',
-                url: '/input-image',
+                url: '/image',
                 data: form_data,
                 contentType: false, // 해당 타입을 true로 하면 일반 text
                 cache: false,
                 processData: false, // 데이터 객체를 문자열로 바꿀지에 대한 값, true면 일반문자
                 async: false,       // 비동기 여부
-                success: function (data) {
-                    console.log('이미지 선택');
-                    $("#status").show();
-                },
-            });
-        }
-
-        // 이미지 분석
-        function imageAnalyse() {
-            let fileValue = $("#input-image").val().split("\\");
-            let flowerPoom
-            let flowerGood
-            $.ajax({
-                type: "GET",
-                url: "/analyse_result?img_name=" + fileValue[2],
-                data:{},
-                // 성공 시 DB 값 가져와서 테이블 생성
                 success: function(results) {
-                    console.log(fileValue[2])
                     console.log("분석 결과")
                     // tbody 비우기
                     $("#flower-list").empty();
@@ -225,8 +202,9 @@
                         flowerGood = flower["goodname"]
                     }
                     console.log(flowerPoom + "_" + flowerGood + " 그래프 그리기")
-                    
-                    // 가져온 DB 값과 파일명 대조하여 그래프 그리기
+
+                    // 가져온 DB 값과 json 파일명 대조하여 그래프 그리기
+                    // examine example_data.json for expected response data
                     var json_url = '/static/json/' + flowerPoom + '_' + flowerGood + '.json'
                     console.log(json_url)
 

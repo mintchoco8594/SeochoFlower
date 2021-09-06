@@ -173,6 +173,7 @@
         });
         
         var data = data || {};
+
                     
         // 선택한 이미지 전송
         function imageInput() {
@@ -226,8 +227,6 @@
                     console.log(flowerPoom + "_" + flowerGood + " 그래프 그리기")
                     
                     // 가져온 DB 값과 파일명 대조하여 그래프 그리기
-                    // examine example_data.json for expected response data
-                    // var json_url = "{{url_for('static', filename='flowerPoom' + '_' + 'flowerGood' + '.json')}}";
                     var json_url = '/static/json/' + flowerPoom + '_' + flowerGood + '.json'
                     console.log(json_url)
 

@@ -57,6 +57,7 @@ def analyse_image():
 
     # 전처리
     IMG_SIZE = 150
+    img = f_name
     img = cv2.imread('static/saved_file/' + secure_filename(f_name), cv2.IMREAD_COLOR)
     img = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
     img = np.array(img)
@@ -78,7 +79,7 @@ def analyse_image():
     if answer == 2:
         ans = "용담_용담"
     if answer == 3:
-        ans = "카네이션_빨간카네이션"
+        ans = "안개_오버타임"
     if answer == 4:
         ans = "해바라기_해바라기"
 

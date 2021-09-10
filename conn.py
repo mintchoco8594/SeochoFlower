@@ -47,3 +47,4 @@ for lis in full_list :
         (lis[1], lis[2], lis[3], lis[4], int(lis[5].replace(',','')) )
     cursor.execute(sql)
     db.commit()
+

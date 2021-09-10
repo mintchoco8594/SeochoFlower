@@ -1,3 +1,5 @@
+import datetime
+
 import cv2
 from flask import Flask, render_template, request, jsonify
 from keras.models import load_model
@@ -19,6 +21,7 @@ db.init_app(app)
 @app.route("/index")
 def index():
     return render_template('index.html')
+
 
 
 @app.route("/image", methods=["GET", "POST"])
@@ -67,8 +70,10 @@ def input_image():
 
                 flower_dict = []
 
-                fcost = db.session.query(Flower.poomname, Flower.goodname, Flower.lvname, func.sum(Flower.qty).label('qty'), func.avg(Flower.cost).label('cost')).\
+                today = datetime.date.now().strframe('%Y-%m-%d')
+                fcost = db.session.query(Flower.poomname, Flower.goodname, Flower.lvname, func.sum(Flower.qty).label('qty'), func.avg(Flower.cost).label('cost'), Flower.dateinfo ).\
                     filter(Flower.poomname == flist.fl_item, Flower.goodname == flist.fl_type).\
+                    fliter(today >= func.ADDDATE(Flower.dateinfo, 7)).\
                     group_by(Flower.lvname).all()
                     #having(func.sum(Flower.qty), func.avg(Flower.cost)).all()
 
@@ -79,7 +84,8 @@ def input_image():
                         "goodname": f.goodname,
                         "lvname": f.lvname,
                         "cost": int(f.cost),
-                        "qty": int(f.qty)
+                        "qty": int(f.qty),
+                        "dateinfo": str(f.dateinfo)
                     })
                 print(flower_dict)
 

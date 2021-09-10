@@ -20,10 +20,12 @@ class Flower(db.Model):
     lvname = db.Column(db.String(100), nullable=False)
     qty = db.Column(db.Integer(), nullable=False)
     cost = db.Column(db.Integer(), nullable=False)
+    dateinfo = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, poomname, goodname, lvname, qty, cost):
+    def __init__(self, poomname, goodname, lvname, qty, cost, dateinfo):
         self.poomname = poomname
         self.email = goodname
         self.phone = lvname
         self.qty = qty
         self.cost = cost
+        self.dateinfo = dateinfo

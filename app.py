@@ -70,12 +70,11 @@ def input_image():
 
                 flower_dict = []
 
-                today = datetime.date.now().strframe('%Y-%m-%d')
+                today = datetime.datetime.today().strftime("%Y-%m-%d")
                 fcost = db.session.query(Flower.poomname, Flower.goodname, Flower.lvname, func.sum(Flower.qty).label('qty'), func.avg(Flower.cost).label('cost'), Flower.dateinfo ).\
                     filter(Flower.poomname == flist.fl_item, Flower.goodname == flist.fl_type).\
-                    fliter(today >= func.ADDDATE(Flower.dateinfo, 7)).\
+                    filter(today >= func.ADDDATE(Flower.dateinfo, -7)).\
                     group_by(Flower.lvname).all()
-                    #having(func.sum(Flower.qty), func.avg(Flower.cost)).all()
 
                 assert isinstance(fcost, object)
                 for f in fcost:

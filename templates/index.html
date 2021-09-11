@@ -32,25 +32,6 @@
             -ms-filter: alpha(opacity=0);
             cursor:pointer;
         }
-        .file_analyse_div {
-            position:relative;
-            width:80px;
-            height:36px;
-            overflow:hidden;
-        }
-        .file_analyse_img_btn {
-            padding:0 0 0 5px;
-        }
-        .file_analyse_hidden {
-            font-size:29px;
-            position:absolute;
-            right:0px;
-            top:0px;
-            opacity:0;
-            filter: alpha(opacity=0);
-            -ms-filter: alpha(opacity=0);
-            cursor:pointer;
-        }
         table {
             width: 100%;
             border-top: 1px solid #444444;
@@ -71,6 +52,10 @@
         tbody tr:nth-child(2n+1) {
             background-color: #e3f2fd;
         }
+        .input-image {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 
 </head>
@@ -78,22 +63,19 @@
 <center>
     <div id="image_container">
         <!-- 썸네일 이미지틀 -->
-        <img style="width: 320px; height: 240px;" id="thum-img" src="{{url_for('static', filename='img/default.png')}}">
+        <img style="width: 640px; height: 480px;" id="thum-img" src="{{url_for('static', filename='img/default.png')}}">
     </div>
 
     <!-- 이미지 선택 버튼 -->
-    <form id="ImageSelect" name="img_select" enctype="multipart/form-data">
+    <form id="ImageSelect2" name="img_select2" enctype="multipart/form-data">
         <div class="file_input_div">
             <img src="{{url_for('static', filename='img/open.png')}}" class="file_input_img_btn" alt="open">
-            <input type="file" id="input-image" name="input-image" class="file_input_hidden">
-            <!-- <input type="file" id="input-image" name="input-image" class="file_input_hidden" onchange="javascript:document.getElementById('fileName').value = this.value"> -->
+            <input type="file" id="input-image" name="input-image" class="file_input_hidden" onchange="imageDetect()">
         </div>
     </form>
 
-    <!-- 분석 버튼 -->
-    <div class="file_analyse_div">
-        <img src="{{url_for('static', filename='img/analyse.png')}}" class="file_analyse_img_btn" alt="analyse" />
-        <input type="submit" id="analyse-image" class="file_analyse_hidden" onclick="imageAnalyse()">
+    <!-- 디텍션 목록 출력 -->
+    <div id="result_detection">
     </div>
 
     <!-- 분석 결과 출력 -->
@@ -169,21 +151,60 @@
 
         var data = data || {};
 
-        // 선택한 이미지 전송 및 분석
-        function imageAnalyse() {
-            var formDataRaw = $('#ImageSelect')[0];
+        // YOLOv5 이미지 디텍션
+        function imageDetect() {
+            let fileValue = $("#input-image").val().split("\\");
+            var formDataRaw = $('#ImageSelect2')[0];
             var form_data = new FormData(formDataRaw);
             let flowerPoom
             let flowerGood
             $.ajax({
                 type: 'POST',
-                url: '/image',
+                url: '/image_detect',
                 data: form_data,
                 contentType: false, // 해당 타입을 true로 하면 일반 text
                 cache: false,
                 processData: false, // 데이터 객체를 문자열로 바꿀지에 대한 값, true면 일반문자
                 async: false,       // 비동기 여부
                 success: function(results) {
+                    console.log(typeof(results))
+                    console.log(results)
+                    // 디텍션 결과 이미지 출력
+                    $("#image_container").empty();
+                    $("#image_container").append(
+                        `<img style="width: 640px; height: 480px;" id="thum-img" src="/static/${fileValue[2]}_box.png">`
+
+                    )
+                    // 디텍션 결과 꽃 리스트 출력
+                    $("#result_detection").empty();
+                    $("#result_detection").append(
+                        `<select id="flower-detect" size=6>
+                            <option value="">---꽃 선택---</option>
+                        </select>`
+                    )
+                    for (let i = 0; i < results.length; i++) {
+                        $("#flower-detect").append(
+                            `<option id="option-flower" value=${results[i]} onclick="imageAnalyse()">${results[i]}</option>`
+                        )
+                    }    
+                    
+                    
+                }
+            })
+        }
+
+        // 선택한 꽃 분석
+        function imageAnalyse() {
+            let flowerValue = $("#option-flower").val();
+            let flowerPoom
+            let flowerGood
+            $.ajax({
+                type: "GET",
+                url: "/analyse_result?flower_name=" + flowerValue,
+                data:{},
+                // 성공 시 DB 값 가져와서 테이블 생성
+                success: function(results) {
+                    console.log(flowerValue)
                     console.log("분석 결과")
                     // tbody 비우기
                     $("#flower-list").empty();
@@ -204,7 +225,7 @@
                         flowerGood = flower["goodname"]
                     }
                     console.log(flowerPoom + "_" + flowerGood + " 그래프 그리기")
-
+                    
                     // 가져온 DB 값과 json 파일명 대조하여 그래프 그리기
                     // examine example_data.json for expected response data
                     var json_url = '/static/json/' + flowerPoom + '_' + flowerGood + '.json'
@@ -223,31 +244,7 @@
             })
             
         }
-
-        // 이미지 미리 보기
-        function readImage(input) {
-            // 인풋 태그에 파일이 있는 경우
-            if(input.files && input.files[0]) {
-                // 이미지 파일인지 검사 (생략)
-
-                // FileReader 인스턴스 생성
-                const reader = new FileReader()
-
-                // reader가 이미지 읽도록 하기
-                reader.readAsDataURL(input.files[0])
-
-                // 이미지가 로드가 된 경우
-                reader.onload = e => {
-                    const previewImage = document.getElementById("thum-img")
-                    previewImage.src = e.target.result
-                }
-            }
-        }
-        // input file에 change 이벤트 부여
-        const inputImage = document.getElementById("input-image")
-        inputImage.addEventListener("change", e => {
-            readImage(e.target)
-        })
+        
     </script>
 
 </center>

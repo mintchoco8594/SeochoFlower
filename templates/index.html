@@ -13,6 +13,35 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <style>
+        #popup {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .7);
+            z-index: 1;
+        }
+
+        #popup.hide {
+            display: none;
+        }
+
+        #popup.has-filter {
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        #popup .content {
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, .3);
+        }
+
         .file_input_div {
             position:relative;
             width:80px;
@@ -78,6 +107,39 @@
     <div id="result_detection">
     </div>
 
+    <!-- 팝업 -->
+    <div id="popup" class="hide">
+        <div class="content">
+            <form>
+                <h4>올바른 결과를 입력해주세요.</h4>
+                <select name="fl_item" id="fl_item" onchange="typeSelect()">
+                    <option value="none">=== 품목 ===</option>
+                    <option value="카네이션">카네이션</option>
+                    <option value="국화">국화</option>
+                    <option value="용담">용담</option>
+                    <option value="거베라">거베라</option>
+                    <option value="데이지">데이지</option>
+                    <option value="안개">안개</option>
+                    <option value="수국">수국</option>
+                    <option value="백합">백합</option>
+                    <option value="튜립">튜립</option>
+                    <option value="장미">장미</option>
+                    <option value="해바라기">해바라기</option>
+                </select>
+                <select name="fl_type" id="fl_type">
+                    <option value="none">=== 품종 ===</option>
+                </select>
+                <input type="button" value="확인" onclick="submitOk()"/>
+                <input type="button" value="취소" onclick="closePopup();"/>
+            </form>
+                        
+        </div>
+      </div>
+
+    <!-- 유저 의견 반영 팝업 버튼 -->
+    <div id="button_container">
+    </div>
+    
     <!-- 분석 결과 출력 -->
     <div class="result_label">
         <table>
@@ -97,10 +159,79 @@
             </tbody>
         </table>
     </div>
+
+    <!-- 분석 결과(그래프) -->
     <div>
         <canvas id="myChart"></canvas>
     </div>
+
     <script>
+        // 팝업 띄우기
+        function showPopup() {
+            const popup = document.querySelector('#popup');
+            popup.classList.remove('hide');
+        }
+        // 팝업 확인 버튼
+        function submitOk(){
+            if (`${"fl_item"}` != "none" || `${"fl_type"}` != "none") {
+                $("#flower-detect").append(
+                `<option id="option-flower" value=${fl_item.value}_${fl_type.value} onclick="imageAnalyse()">${fl_item.value}_${fl_type.value}</option>`)
+                closePopup()
+            } else
+                alert("정확한 값을 입력해주세요.")
+        }
+        // 팝업 감추기
+        function closePopup() {
+            const popup = document.querySelector('#popup');
+            popup.classList.add('hide');
+        }
+        // 품목에 맞는 품종 보여주기
+        function typeSelect(){
+            $("#fl_type").empty();
+            $("#fl_type").append('<option value="none">=== 품종 ===</option>')
+            if ($("#fl_item option:selected").val() == "카네이션"){
+                $("#fl_type").append('<option value="핑크">핑크</option>')
+                $("#fl_type").append('<option value="레드">레드</option>')
+            }
+            else if($("#fl_item option:selected").val() == "국화"){
+                $("#fl_type").append('<option value="코스모스">코스모스</option>')
+                $("#fl_type").append('<option value="백선">백선</option>')
+                $("#fl_type").append('<option value="디스버드">디스버드</option>')
+            }
+            else if($("#fl_item option:selected").val() == "용담"){
+                $("#fl_type").append('<option value="용담">용담</option>')
+            }
+            else if($("#fl_item option:selected").val() == "거베라"){
+                $("#fl_type").append('<option value="거베라">거베라</option>')
+            }
+            else if($("#fl_item option:selected").val() == "데이지"){
+                $("#fl_type").append('<option value="데이지">데이지</option>')
+                $("#fl_type").append('<option value="겹">겹</option>')
+            }
+            else if($("#fl_item option:selected").val() == "안개"){
+                $("#fl_type").append('<option value="오버타임">오버타임</option>')
+            }
+            else if($("#fl_item option:selected").val() == "수국"){
+                $("#fl_type").append('<option value="그린">그린</option>')
+                $("#fl_type").append('<option value="핑크">핑크</option>')
+            }
+            else if($("#fl_item option:selected").val() == "백합"){
+                $("#fl_type").append('<option value="메두사">메두사</option>')
+                $("#fl_type").append('<option value="시베리아">시베리아</option>')
+            }
+            else if($("#fl_item option:selected").val() == "튜립"){
+                $("#fl_type").append('<option value="레드">레드</option>')
+                $("#fl_type").append('<option value="로얄버진">로얄버진</option>')
+            }
+            else if($("#fl_item option:selected").val() == "장미"){
+                $("#fl_type").append('<option value="푸에고">푸에고</option>')
+                $("#fl_type").append('<option value="하젤">하젤</option>')
+            }
+            else if($("#fl_item option:selected").val() == "해바라기"){
+                $("#fl_type").append('<option value="해바라기">해바라기</option>')
+                $("#fl_type").append('<option value="겹">겹</option>')
+            }
+        }
         // 그래프 뼈대
         var ctx = document.getElementById("myChart").getContext("2d");
         var myChart = new Chart(ctx, {
@@ -186,16 +317,20 @@
                         $("#flower-detect").append(
                             `<option id="option-flower" value=${results[i]} onclick="imageAnalyse()">${results[i]}</option>`
                         )
-                    }    
-                    
-                    
+                    }
+
+                    // 유저 의견 반영 팝업 버튼
+                    $("#button_container").empty();
+                    $("#button_container").append(
+                            '<input type="button" value="원하시는 결과가 나오지 않으셨나요?" onclick="showPopup();" />'
+                        )      
                 }
             })
         }
 
         // 선택한 꽃 분석
         function imageAnalyse() {
-            let flowerValue = $("#option-flower").val();
+            let flowerValue = $("#flower-detect option:selected").val();
             let flowerPoom
             let flowerGood
             $.ajax({

@@ -10,7 +10,7 @@ import pymysql
 
 from sqlalchemy import func
 from db_connect import db
-from tf_models import Target, Flower
+from db_models import Target, Flower
 
 import shutil
 import torch

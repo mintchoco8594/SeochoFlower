@@ -2,17 +2,16 @@ import pymysql
 from flask import Flask, request, jsonify, render_template
 import time
 from selenium import webdriver
+from pyvirtualdisplay import Display
+
 # Python 과 MySQL 연결하기
-db = pymysql.connect(host='localhost', port=3306, user='root', passwd='duddnr1229', db='ai_college', charset="utf8")
+db = pymysql.connect(user='admin', passwd='1234', db='ai_college', charset="utf8")
 cursor = db.cursor() # 커서 클래스 호출
 
-sql = """delete from realtime_flower"""
-cursor.execute(sql)
-db.commit()
-
 conn = Flask(__name__)
-
-with webdriver.Chrome('C:/driver/chromedriver.exe') as driver:
+# display = Display(visible=0, size=(1024,768))
+# display.start()
+with webdriver.Chrome('C:/driver/chromedriver') as driver:
 #driver = webdriver.Chrome('C:\driver\chromedriver.exe')
     driver.get('https://flower.at.or.kr/real/real2.do')
 

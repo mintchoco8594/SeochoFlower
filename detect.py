@@ -29,9 +29,9 @@ from utils.torch_utils import select_device, load_classifier, time_sync
 
 
 @torch.no_grad()
-def run(weights='best.pt',  # model.pt path(s) #이전 학습완료된 모델의 가중치 주소
-        source='datasets/images/train',  # file/dir/URL/glob, 0 for webcam #예측할 파일 주소, 이경우에는 웹페이지에서 불러온 파일 주소
-        imgsz=640,  # inference size (pixels)
+def run(weights='C:/Users/jinsung/Downloads/SeochoFlower/ml/best.pt',  # model.pt path(s) #이전 학습완료된 모델의 가중치 주소
+        source='C:/Users/jinsung/Downloads/SeochoFlower/datasets/images/train',  # file/dir/URL/glob, 0 for webcam #예측할 파일 주소, 이경우에는 웹페이지에서 불러온 파일 주소
+        imgsz= [640, 640],  # inference size (pixels)
         conf_thres=0.25,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
@@ -50,8 +50,8 @@ def run(weights='best.pt',  # model.pt path(s) #이전 학습완료된 모델의
         name='exp',  # save results to project/name
         exist_ok=False,  # existing project/name ok, do not increment
         line_thickness=3,  # bounding box thickness (pixels)
-        hide_labels=False,  # hide labels
-        hide_conf=False,  # hide confidences
+        hide_labels=False,  # hide labels label 숨김
+        hide_conf=True,  # hide confidences , score 숨김
         half=False,  # use FP16 half-precision inference
         ):
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -59,7 +59,9 @@ def run(weights='best.pt',  # model.pt path(s) #이전 학습완료된 모델의
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
 
     # Directories
-    save_dir = str('static')  # increment run
+    save_dir = str('C:/Users/jinsung/Downloads/SeochoFlower/static/img')  # increment run
+    txt_path = str('C:/Users/jinsung/Downloads/SeochoFlower/labels/')
+
     # (save_dir + '/labels' if save_img or save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
     dict={0:'거베라_거베라',
     1:'국화_코스모스',
@@ -197,7 +199,7 @@ def run(weights='best.pt',  # model.pt path(s) #이전 학습완료된 모델의
                 p, s, im0, frame = path, '', im0s.copy(), getattr(dataset, 'frame', 0)
 
             p = Path(p)  # to Path
-            save_path = str(save_dir)  # img.jpg
+            save_path = str(save_dir)  # img.jpg 동일한 저장소 위해
             # txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # img.txt
             s += '%gx%g ' % img.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
@@ -213,15 +215,16 @@ def run(weights='best.pt',  # model.pt path(s) #이전 학습완료된 모델의
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
-                    if save_txt :  # Write to file
+                    if save_txt or save_img :  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         line = (cls, *xywh, conf) if save_conf else (cls, *xywh)  # label format
-                        with open(txt_path + '.txt', 'a') as f:
+                        with open(txt_path +(os.listdir('C:/Users/jinsung/Downloads/SeochoFlower/datasets/images/train')[-1]).rsplit(".")[0] + '.txt', 'a') as f:
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
-                        if c != 20 and conf >= 0.7:
+                        ########################@@ 박스 설정 @@###################################
+                        if c != 23: # ood 20 이상 점수 0.5 이상
                             label = None if hide_labels else (dict[c] if hide_conf else f'{dict[c]} {conf:.2f}')
                             im0 = plot_one_box(xyxy, im0, label=label, color=colors(c, True), line_width=line_thickness)
                             if save_crop:
@@ -239,7 +242,7 @@ def run(weights='best.pt',  # model.pt path(s) #이전 학습완료된 모델의
             # Save results (image with detections)
             if save_img:
                 if dataset.mode == 'image':
-                    cv2.imwrite(save_dir+"/"+os.listdir('datasets/images/train')[-1]+'_box.png', im0)
+                    cv2.imwrite(save_dir+"/"+os.listdir('C:/Users/jinsung/Downloads/SeochoFlower/datasets/images/train')[-1]+'_box.png', im0)
                 else:  # 'video' or 'stream'
                     if vid_path[i] != save_path:  # new video
                         vid_path[i] = save_path
@@ -267,8 +270,8 @@ def run(weights='best.pt',  # model.pt path(s) #이전 학습완료된 모델의
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='best.pt', help='model.pt path(s)') #학습완료된 모델 주소
-    parser.add_argument('--source', type=str, default='datasets/images/train/'+os.listdir('datasets/images/train')[-1], help='file/dir/URL/glob, 0 for webcam') #예측할 파일 주소
+    parser.add_argument('--weights', nargs='+', type=str, default='C:/Users/jinsung/Downloads/SeochoFlower/ml/best.pt', help='model.pt path(s)') #학습완료된 모델 주소
+    parser.add_argument('--source', type=str, default='C:/Users/jinsung/Downloads/SeochoFlower/datasets/images/train', help='file/dir/URL/glob, 0 for webcam') #예측할 파일 주소
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='NMS IoU threshold')

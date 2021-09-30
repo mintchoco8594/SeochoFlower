@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block styles %}
+<style xmlns="http://www.w3.org/1999/html">
+    </style>
+{% endblock %}
+
+{% block scripts %}
+<script src="static/script/analysis.js">
+</script>
+
+{% endblock %}
+
+{% block content %}
+    <div id="image_container">
+      <div class="ftco-blocks-cover-1">
+        <div class="ftco-cover-1 overlay" style="background-image: url('static/img/flower.jpg')">
+          <div class="container">
+            <div class="row flex-nowrap align-items-center justify-content-center text-center margin-right: -65px;">
+              <div class="col-lg-6">
+                <h1 class="subtitle">Do You Want to Analyze Flower with YOLO?</h1>
+                  <br><br>
+                  <p class="mb-5">알고싶은 꽃을 넣어주세요!!</p>
+                  <form id="ImageSelect2" name="img_select2" enctype="multipart/form-data">
+                    <div id="main-upload" class = "filebox">
+                        <label className ="input-file-button" for="input-image">업로드</label>
+                        <input type ="file" id="input-image" class="file_input_hidden" style="display:none" onchange="imageDetect2()"/>
+                    </div>
+                  </form>
+              </div>
+              <div id="left-side-bar">
+                    <div id="gallery">
+                    {% for post in post_list %}
+                        <div class="location-image">
+                        <img class="main-image" width="200px" id="{{post.imagename}}" src="/static/img/{{post.imagename}}" onclick="imageDetect(this)"/>
+                        </div>
+                    {% endfor %}
+                    </div>
+                    <div class = "filebox">
+                        <a href="/gallery">
+                            <label class ="input-file-button">갤러리</label>
+                        </a>
+                    </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<div class = "center">
+        <div style="margin-top: 10px" class = "left">
+           <div id="image_container2">
+            </div>
+             
+        </div>
+
+        <div style="margin-top: 10px" class= "right">
+            <!-- 디텍션 목록 출력 -->
+            <div id="result_detection">
+            </div>
+            
+             <!-- 팝업 -->
+            <div id="popup" class="hide">
+                <div class="content">
+                    <form>
+                        <h4>올바른 결과를 입력해주세요.</h4>
+                        <select name="fl_item" id="fl_item" onchange="typeSelect()">
+                            <option value="none">=== 품목 ===</option>
+                            <option value="카네이션">카네이션</option>
+                            <option value="국화">국화</option>
+                            <option value="용담">용담</option>
+                            <option value="거베라">거베라</option>
+                            <option value="데이지">데이지</option>
+                            <option value="안개">안개</option>
+                            <option value="수국">수국</option>
+                            <option value="백합">백합</option>
+                            <option value="튜립">튜립</option>
+                            <option value="장미">장미</option>
+                            <option value="해바라기">해바라기</option>
+                        </select>
+                        <select name="fl_type" id="fl_type">
+                            <option value="none">=== 품종 ===</option>
+                        </select>
+                        <input type="button" value="확인" onclick="submitOk()">
+                        <input type="button" value="취소" onclick="closePopup()">
+                    </form>
+                </div>
+            </div>
+
+        <!-- 데이터가 없을 경우 관계자 번호 출력-->
+        <div id="phonenum">
+        </div>
+        <!-- 유저 의견 반영 팝업 버튼 -->
+        <!-- <div id="button_container">
+        </div> -->
+
+        <!-- 분석 결과(그래프) -->
+        <div id="chart_container">
+            <!-- <canvas id="myChart"></canvas> -->
+        </div>
+        
+        <!-- 분석 결과 출력 -->
+        <div id="result_label">
+            <table style="margin-top: 50px" id="flower_table">
+            </table>
+
+            <div id="button_buy">
+            </div>
+        </div>
+
+        
+    </div>
+
+
+        </div>
+
+    </div>
+
+
+
+{% endblock %}

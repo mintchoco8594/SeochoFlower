@@ -65,7 +65,7 @@ def _create(name, pretrained=True, channels=3, classes=80, autoshape=True, verbo
         raise Exception(s) from e
 
 
-def custom(path='C:/Users/FineTiger/PycharmProjects/flowerProject1/ml/best.pt', autoshape=True, verbose=True, device=None):
+def custom(path='C:/Users/jinsung/Downloads/SeochoFlower/ml/best.pt', autoshape=True, verbose=True, device=None):
     # YOLOv5 custom or local model
     return _create(path, autoshape=autoshape, verbose=verbose, device=device)
 
@@ -112,7 +112,7 @@ def yolov5x6(pretrained=True, channels=3, classes=80, autoshape=True, verbose=Tr
 
 if __name__ == '__main__':
     # model = _create(name='yolov5s', pretrained=True, channels=3, classes=80, autoshape=True, verbose=True)  # pretrained
-    model = custom(path='/ml/best.pt')  # custom
+    model = custom(path='C:/Users/jinsung/Downloads/SeochoFlower/ml/best.pt')  # custom
 
     # Verify inference
     import cv2
